@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>Pomodoro Quest</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header>
+    <h1>🍅 Pomodoro Quest</h1>
+    <p class="tagline">集中するほどレベルアップ！バッジを集めて連続記録を伸ばそう。</p>
+  </header>
+
+  <main>
+    <section class="timer-card">
+      <div class="timer-display" id="timer">25:00</div>
+      <div class="timer-modes">
+        <button class="mode-btn active" data-minutes="25">作業 (25分)</button>
+        <button class="mode-btn" data-minutes="5">小休憩 (5分)</button>
+        <button class="mode-btn" data-minutes="15">長休憩 (15分)</button>
+      </div>
+      <div class="timer-controls">
+        <button id="start-btn" class="primary">スタート</button>
+        <button id="cancel-btn" class="secondary" disabled>中止</button>
+      </div>
+      <p class="status" id="status">準備OK。ボタンを押して集中タイムを始めましょう。</p>
+    </section>
+
+    <section class="profile-card">
+      <h2>プレイヤーステータス</h2>
+      <div class="profile-row">
+        <span class="label">レベル</span>
+        <span class="value" id="level">1</span>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-bar-fill" id="xp-fill"></div>
+        <span class="xp-text" id="xp-text">0 / 100 XP</span>
+      </div>
+      <div class="profile-row">
+        <span class="label">🔥 連続日数</span>
+        <span class="value"><span id="streak">0</span> 日 (最長 <span id="best-streak">0</span> 日)</span>
+      </div>
+      <div class="profile-row">
+        <span class="label">✅ 累計完了</span>
+        <span class="value" id="total-completed">0</span>
+      </div>
+    </section>
+
+    <section class="badges-card">
+      <h2>🏆 バッジ</h2>
+      <ul id="badges" class="badge-list"><li class="empty">まだバッジはありません。ポモドーロを完了して獲得しましょう！</li></ul>
+    </section>
+
+    <section class="stats-card">
+      <h2>📊 統計</h2>
+      <div class="tabs">
+        <button class="tab-btn active" data-range="weekly">週間</button>
+        <button class="tab-btn" data-range="monthly">月間</button>
+      </div>
+      <div class="stats-summary" id="stats-summary"></div>
+      <div class="chart" id="chart"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
