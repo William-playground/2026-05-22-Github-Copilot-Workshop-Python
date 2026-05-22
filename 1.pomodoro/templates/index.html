@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer</title>
+  <style>
+    :root {
+      --bg: #1e1e2e;
+      --fg: #f5f5f5;
+      --accent: #f38ba8;
+      --panel: #2a2a3d;
+      --muted: #a6adc8;
+      --border: #444a66;
+    }
+    body.theme-light {
+      --bg: #f7f7fb;
+      --fg: #1a1a2e;
+      --accent: #d63384;
+      --panel: #ffffff;
+      --muted: #5c6378;
+      --border: #d0d4e0;
+    }
+    body.theme-focus-minimal {
+      --bg: #ffffff;
+      --fg: #111111;
+      --accent: #111111;
+      --panel: #ffffff;
+      --muted: #777777;
+      --border: #eeeeee;
+    }
+    body.theme-focus-minimal .panel,
+    body.theme-focus-minimal header,
+    body.theme-focus-minimal footer { box-shadow: none; }
+    body.theme-focus-minimal button { border-radius: 0; }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    header { margin-bottom: 1.5rem; text-align: center; }
+    h1 { margin: 0; font-size: 1.6rem; letter-spacing: 0.05em; }
+    .mode-label {
+      margin-top: 0.5rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+    }
+    .timer {
+      font-size: clamp(4rem, 18vw, 9rem);
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      margin: 1rem 0 1.5rem;
+      color: var(--accent);
+    }
+    .controls { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 0.7rem 1.4rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem;
+      width: min(560px, 100%);
+    }
+    .panel h2 {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+    .row > label.label, .row > span.label {
+      flex: 0 0 110px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .chip {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--fg);
+      font-size: 0.9rem;
+    }
+    .chip.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .sound-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .sound-row label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
+    footer { margin-top: auto; color: var(--muted); font-size: 0.8rem; padding-top: 2rem; }
+  </style>
+</head>
+<body class="theme-{{ defaults.theme }}">
+  <header>
+    <h1>Pomodoro Timer</h1>
+    <div class="mode-label" id="modeLabel">WORK</div>
+  </header>
+
+  <div class="timer" id="timerDisplay">25:00</div>
+
+  <div class="controls">
+    <button id="startBtn">スタート</button>
+    <button id="pauseBtn" class="secondary" disabled>一時停止</button>
+    <button id="resetBtn" class="secondary">リセット</button>
+    <button id="skipBtn" class="secondary">スキップ</button>
+  </div>
+
+  <section class="panel" aria-label="設定">
+    <h2>設定</h2>
+
+    <div class="row">
+      <span class="label">作業時間</span>
+      <div id="workChoices">
+        {% for m in work_choices %}
+        <button type="button" class="chip work-chip" data-value="{{ m }}">{{ m }}分</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="label">休憩時間</span>
+      <div id="breakChoices">
+        {% for m in break_choices %}
+        <button type="button" class="chip break-chip" data-value="{{ m }}">{{ m }}分</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="label">テーマ</span>
+      <div id="themeChoices">
+        {% for t in theme_choices %}
+        <button type="button" class="chip theme-chip" data-value="{{ t }}">{{ t }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="label">サウンド</span>
+      <div class="sound-row" id="soundChoices">
+        {% for s in sound_choices %}
+        <label><input type="checkbox" class="sound-toggle" data-name="{{ s }}" /> {{ s }}音</label>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <footer>Pattern B — カスタマイズ可能なポモドーロ</footer>
+
+  <script>
+    const DEFAULTS = {{ defaults | tojson }};
+    const STORAGE_KEY = "pomodoro.settings.v1";
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...DEFAULTS, sounds: { ...DEFAULTS.sounds } };
+        const parsed = JSON.parse(raw);
+        return {
+          work_minutes: parsed.work_minutes ?? DEFAULTS.work_minutes,
+          break_minutes: parsed.break_minutes ?? DEFAULTS.break_minutes,
+          theme: parsed.theme ?? DEFAULTS.theme,
+          sounds: { ...DEFAULTS.sounds, ...(parsed.sounds || {}) },
+        };
+      } catch (e) {
+        return { ...DEFAULTS, sounds: { ...DEFAULTS.sounds } };
+      }
+    }
+
+    function saveSettings() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ }
+    }
+
+    const settings = loadSettings();
+
+    let mode = "work";
+    let remaining = settings.work_minutes * 60;
+    let intervalId = null;
+
+    const timerDisplay = document.getElementById("timerDisplay");
+    const modeLabel = document.getElementById("modeLabel");
+    const startBtn = document.getElementById("startBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const skipBtn = document.getElementById("skipBtn");
+
+    function format(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function render() {
+      timerDisplay.textContent = format(remaining);
+      modeLabel.textContent = mode === "work" ? "WORK" : "BREAK";
+      document.title = `${format(remaining)} - ${mode === "work" ? "作業中" : "休憩中"}`;
+    }
+
+    function applyTheme() {
+      document.body.classList.remove("theme-dark", "theme-light", "theme-focus-minimal");
+      document.body.classList.add(`theme-${settings.theme}`);
+    }
+
+    function setMode(newMode) {
+      mode = newMode;
+      remaining = (mode === "work" ? settings.work_minutes : settings.break_minutes) * 60;
+      stopTimer();
+      render();
+    }
+
+    let audioCtx = null;
+    function ensureAudio() {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      }
+      return audioCtx;
+    }
+    function beep(frequency, duration, volume) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = frequency;
+      gain.gain.value = volume;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+    function playSound(name) {
+      if (!settings.sounds[name]) return;
+      if (name === "start") beep(880, 0.18, 0.15);
+      else if (name === "end") { beep(440, 0.25, 0.18); setTimeout(() => beep(330, 0.3, 0.18), 220); }
+      else if (name === "tick") beep(1200, 0.03, 0.05);
+    }
+
+    function tick() {
+      if (remaining <= 0) {
+        stopTimer();
+        playSound("end");
+        setMode(mode === "work" ? "break" : "work");
+        return;
+      }
+      remaining -= 1;
+      playSound("tick");
+      render();
+    }
+
+    function startTimer() {
+      if (intervalId) return;
+      playSound("start");
+      intervalId = setInterval(tick, 1000);
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+    }
+
+    function stopTimer() {
+      if (intervalId) { clearInterval(intervalId); intervalId = null; }
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    startBtn.addEventListener("click", startTimer);
+    pauseBtn.addEventListener("click", stopTimer);
+    resetBtn.addEventListener("click", () => setMode(mode));
+    skipBtn.addEventListener("click", () => setMode(mode === "work" ? "break" : "work"));
+
+    function syncChips() {
+      document.querySelectorAll(".work-chip").forEach((c) => {
+        c.classList.toggle("active", Number(c.dataset.value) === settings.work_minutes);
+      });
+      document.querySelectorAll(".break-chip").forEach((c) => {
+        c.classList.toggle("active", Number(c.dataset.value) === settings.break_minutes);
+      });
+      document.querySelectorAll(".theme-chip").forEach((c) => {
+        c.classList.toggle("active", c.dataset.value === settings.theme);
+      });
+      document.querySelectorAll(".sound-toggle").forEach((c) => {
+        c.checked = !!settings.sounds[c.dataset.name];
+      });
+    }
+
+    document.querySelectorAll(".work-chip").forEach((c) => {
+      c.addEventListener("click", () => {
+        settings.work_minutes = Number(c.dataset.value);
+        saveSettings();
+        syncChips();
+        if (mode === "work") setMode("work");
+      });
+    });
+    document.querySelectorAll(".break-chip").forEach((c) => {
+      c.addEventListener("click", () => {
+        settings.break_minutes = Number(c.dataset.value);
+        saveSettings();
+        syncChips();
+        if (mode === "break") setMode("break");
+      });
+    });
+    document.querySelectorAll(".theme-chip").forEach((c) => {
+      c.addEventListener("click", () => {
+        settings.theme = c.dataset.value;
+        saveSettings();
+        syncChips();
+        applyTheme();
+      });
+    });
+    document.querySelectorAll(".sound-toggle").forEach((c) => {
+      c.addEventListener("change", () => {
+        settings.sounds[c.dataset.name] = c.checked;
+        saveSettings();
+      });
+    });
+
+    applyTheme();
+    syncChips();
+    setMode("work");
+  </script>
+</body>
+</html>
