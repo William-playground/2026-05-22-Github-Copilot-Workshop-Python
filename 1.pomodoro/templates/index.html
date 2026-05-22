@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ポモドーロタイマー</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="timer-card" aria-labelledby="app-title">
+      <header class="app-header">
+        <h1 id="app-title">ポモドーロタイマー</h1>
+      </header>
+
+      <p class="loading-message">タイマー画面を準備中です。</p>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+</body>
+</html>
