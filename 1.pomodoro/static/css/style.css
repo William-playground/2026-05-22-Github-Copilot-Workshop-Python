@@ -1,0 +1,60 @@
+:root {
+  color: #30303a;
+  background: #6f62c3;
+  font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.timer-card {
+  width: min(100%, 420px);
+  padding: 32px;
+  border-radius: 20px;
+  background: #f8f7fc;
+  box-shadow: 0 18px 40px rgb(60 48 130 / 20%);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.progress-list {
+  margin: 24px 0;
+  padding: 0;
+}
+
+.progress-item {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.progress-item dt,
+.progress-item dd {
+  margin: 0;
+}
+
+#complete-session {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 16px;
+  color: #fff;
+  background: #5e53b6;
+  cursor: pointer;
+}
