@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ポモドーロタイマー</title>
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="timer-card" aria-labelledby="app-title">
+      <header class="app-header">
+        <h1 id="app-title">ポモドーロタイマー</h1>
+      </header>
+
+      <p class="status-row">状態: <span id="timer-status" class="status-badge stopped" aria-live="polite">停止中</span></p>
+      <p id="timer-display" class="timer-display" role="timer" aria-live="polite" aria-label="残り時間">25:00</p>
+
+      <div class="controls" role="group" aria-label="タイマー操作">
+        <button id="start-btn" type="button" aria-label="タイマーを開始">開始</button>
+        <button id="pause-btn" type="button" aria-label="タイマーを一時停止" disabled>一時停止</button>
+        <button id="reset-btn" type="button" aria-label="タイマーをリセット">リセット</button>
+      </div>
+
+      <section class="progress-panel" aria-labelledby="progress-title">
+        <h2 id="progress-title">進捗</h2>
+        <dl class="progress-grid">
+          <div>
+            <dt>経過</dt>
+            <dd id="elapsed-display">00:00</dd>
+          </div>
+          <div>
+            <dt>残り</dt>
+            <dd id="remaining-display">25:00</dd>
+          </div>
+        </dl>
+      </section>
+    </section>
+  </main>
+
+  <script src="static/js/timer.js"></script>
+</body>
+</html>

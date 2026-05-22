@@ -1,0 +1,156 @@
+:root {
+  color: #2f3040;
+  background: #6b5ed2;
+  font-family: "Noto Sans JP", "Yu Gothic", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.timer-card {
+  width: min(100%, 420px);
+  padding: 28px;
+  border-radius: 20px;
+  background: #f8f7fd;
+  box-shadow: 0 16px 40px rgb(62 51 138 / 24%);
+}
+
+.app-header h1 {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+}
+
+.status-row {
+  margin: 0;
+  color: #57596a;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.status-badge.stopped {
+  background: #e3e5f8;
+  color: #313a75;
+}
+
+.status-badge.running {
+  background: #d7f4df;
+  color: #1a6b37;
+}
+
+.timer-display {
+  margin: 18px 0;
+  text-align: center;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.controls button {
+  flex: 1 1 110px;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #786ce4, #665ac8);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.controls button:hover {
+  box-shadow: 0 10px 18px rgb(67 56 145 / 30%);
+}
+
+.controls button:focus-visible {
+  outline: 3px solid #2f3040;
+  outline-offset: 2px;
+}
+
+.controls button:active {
+  transform: translateY(1px);
+}
+
+.controls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.progress-panel {
+  margin-top: 18px;
+  border-radius: 14px;
+  background: #eceaf9;
+  padding: 14px;
+}
+
+.progress-panel h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.progress-grid {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.progress-grid div {
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+  text-align: center;
+}
+
+.progress-grid dt {
+  font-size: 0.875rem;
+  color: #5d6070;
+}
+
+.progress-grid dd {
+  margin: 4px 0 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .timer-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .controls button {
+    flex-basis: 100%;
+  }
+}
